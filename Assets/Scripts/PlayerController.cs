@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour
 	{
 		// Setting up references.
 		groundCheck = transform.Find("groundCheck");
+		Debug.Log (groundCheck.GetInstanceID ());
 		anim = GetComponent<Animator>();
 	}
 	
@@ -48,6 +49,7 @@ public class PlayerController : MonoBehaviour
 	{
 		// The player is grounded if a linecast to the groundcheck position hits anything on the ground layer.
 		grounded = Physics2D.Linecast(transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("Ground")); 
+		Debug.Log ("Is he grounded?" + grounded);
 		
 		
 		if (grounded) {
