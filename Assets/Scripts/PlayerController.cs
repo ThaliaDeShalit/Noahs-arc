@@ -3,7 +3,7 @@ using System.Collections;
 
 [System.Serializable]
 public class Boundary {
-	public float xMin, xMax;				// Boundary for the player
+	public float xMin, xMax, yMin, yMax;				// Boundary for the player
 }
 
 public class PlayerController : MonoBehaviour
@@ -16,19 +16,19 @@ public class PlayerController : MonoBehaviour
 	public int currentGround;		// For finding out where the enemies should go
 	[HideInInspector]
 	public GameObject currentGroundObject;
-
-
+	
+	
 	public Boundary boundary;
 	
-	public float moveForce = 365f;			// Amount of force added to move the player left and right.
-	public float maxSpeed = 5f;				// The fastest the player can travel in the x axis.
+	public float moveForce;			// Amount of force added to move the player left and right.
+	public float maxSpeed;				// The fastest the player can travel in the x axis.
 	//public AudioClip[] jumpClips;			// Array of clips for when the player jumps.
-	public float jumpForce = 1000f;			// Amount of force added when the player jumps.
-
+	public float jumpForce;			// Amount of force added when the player jumps.
+	
 	private Transform groundCheck;			// A position marking where to check if the player is grounded.
 	private bool grounded = false;			// Whether or not the player is grounded.
 	
-//	private bool inAir = false;				// Whether the player is currently in the air
+	//	private bool inAir = false;				// Whether the player is currently in the air
 	
 	private Animator anim;					// Reference to the player's animator component.
 	
@@ -40,7 +40,6 @@ public class PlayerController : MonoBehaviour
 	{
 		// Setting up references.
 		groundCheck = transform.Find("groundCheck");
-		Debug.Log (groundCheck.GetInstanceID ());
 		anim = GetComponent<Animator>();
 	}
 	
@@ -49,7 +48,6 @@ public class PlayerController : MonoBehaviour
 	{
 		// The player is grounded if a linecast to the groundcheck position hits anything on the ground layer.
 		grounded = Physics2D.Linecast(transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("Ground")); 
-		Debug.Log ("Is he grounded?" + grounded);
 		
 		
 		if (grounded) {
@@ -65,7 +63,7 @@ public class PlayerController : MonoBehaviour
 			
 		}
 		// If the jump button is pressed and the player is grounded then the player should jump.
-		if(Input.GetButtonDown("Jump"))
+		if(Input.GetButtonDown("Jump") && grounded)
 			jump = true;
 		
 	}
@@ -88,7 +86,7 @@ public class PlayerController : MonoBehaviour
 		if(Mathf.Abs(rigidbody2D.velocity.x) > maxSpeed)
 			// ... set the player's velocity to the maxSpeed in the x axis.
 			rigidbody2D.velocity = new Vector2(Mathf.Sign(rigidbody2D.velocity.x) * maxSpeed, rigidbody2D.velocity.y);
-		rigidbody2D.position = new Vector2 (Mathf.Clamp (rigidbody2D.position.x, boundary.xMin, boundary.xMax), rigidbody2D.position.y);
+		rigidbody2D.position = new Vector2(Mathf.Clamp(rigidbody2D.position.x, boundary.xMin, boundary.xMax), Mathf.Clamp(rigidbody2D.position.y, boundary.yMin, boundary.yMax));
 		
 		// If the input is moving the player right and the player is facing left...
 		if(h > 0 && facingRight)
@@ -106,8 +104,8 @@ public class PlayerController : MonoBehaviour
 			//anim.SetTrigger("Jump");
 			
 			// Play a random jump audio clip.
-		//	int i = Random.Range(0, jumpClips.Length);
-		//	AudioSource.PlayClipAtPoint(jumpClips[i], transform.position);
+			//	int i = Random.Range(0, jumpClips.Length);
+			//	AudioSource.PlayClipAtPoint(jumpClips[i], transform.position);
 			
 			// Add a vertical force to the player.
 			rigidbody2D.AddForce(new Vector2(0f, jumpForce));
@@ -129,5 +127,6 @@ public class PlayerController : MonoBehaviour
 	}
 	
 	
-
+	
 }
+
